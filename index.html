@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gastronomía Colombiana</title>
+
+  <link rel="icon" href="./Images/Banderacolombia.png" type="image/png">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #050505;
+      color: white;
+    }
+
+    /* --- MOTOR 3D OPTIMIZADO PARA MÓVIL --- */
+    .wheel-scene {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* Perspectiva más alta para mayor compatibilidad en navegadores móviles */
+      perspective: 1500px;
+      -webkit-perspective: 1500px;
+      transform-style: preserve-3d;
+      -webkit-transform-style: preserve-3d;
+    }
+
+    .dish-card {
+      position: absolute;
+      width: 100%;
+      max-width: 1400px;
+      transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+      opacity: 0;
+      pointer-events: none;
+      filter: blur(10px);
+      /* Usamos translate3d para activar aceleración por hardware */
+      transform: translate3d(0, 0, -600px) scale(0.6);
+      will-change: transform, opacity;
+      visibility: hidden;
+    }
+
+    /* Plato Central */
+    .dish-card.active {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+      filter: blur(0);
+      z-index: 50;
+      pointer-events: auto;
+      visibility: visible;
+    }
+
+    /* Plato Izquierda (Orbitando) */
+    .dish-card.prev {
+      opacity: 0.15;
+      transform: translate3d(-75%, 0, -400px) rotateY(35deg) scale(0.7);
+      filter: blur(6px);
+      z-index: 30;
+      visibility: visible;
+    }
+
+    /* Plato Derecha (Orbitando) */
+    .dish-card.next {
+      opacity: 0.15;
+      transform: translate3d(75%, 0, -400px) rotateY(-35deg) scale(0.7);
+      filter: blur(6px);
+      z-index: 30;
+      visibility: visible;
+    }
+
+    /* Estilos del visualizador redondo */
+    .dish-visual-wrapper {
+      position: relative;
+      border-radius: 9999px;
+      padding: 4px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), transparent);
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dish-image-container {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      border-radius: 9999px;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      -webkit-mask-image: radial-gradient(circle, white 98%, transparent 100%);
+      mask-image: radial-gradient(circle, white 98%, transparent 100%);
+    }
+
+    .dish-image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    .flag-btn {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+
+    .flag-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(to right, #FCD116, #003893, #CE1126);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .flag-btn:hover::before {
+      opacity: 1;
+    }
+
+    .flag-btn:hover {
+      color: white !important;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+
+<body class="antialiased">
+
+  <div id="view-home" class="relative h-screen w-full flex flex-col items-center justify-center p-4 text-center">
+    <div class="absolute inset-0 z-0">
+      <img src="./Images/colombia.jpg" class="w-full h-full object-cover opacity-40" alt="Fondo">
+      <div class="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black"></div>
+    </div>
+    <div class="z-10 w-full max-w-[100vw] overflow-hidden px-4">
+      <h1 class="font-black tracking-tighter leading-none select-none py-6">
+        <span
+          class="text-[#FCD116] text-[12vw] sm:text-7xl md:text-[9rem] lg:text-[11rem] block uppercase">Gastronomía</span>
+        <span class="block uppercase mt-2 text-[10vw] sm:text-6xl md:text-[7rem] lg:text-[9rem]">
+          <span class="text-[#003893]">Colom</span><span class="text-[#CE1126]">biana</span>
+        </span>
+      </h1>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mt-12 relative z-20">
+        <button onclick="changeView('menu')"
+          class="flag-btn w-full sm:w-auto px-12 py-5 bg-white text-black font-black rounded-full uppercase tracking-widest text-xs flex items-center justify-center gap-3 cursor-pointer shadow-xl">
+          EXPLORAR MENÚ <i data-lucide="utensils-crossed"></i>
+        </button>
+        <a href="Trabajo_PDF.pdf" target="_blank"
+          class="flag-btn w-full sm:w-auto px-12 py-5 border-2 border-white/30 text-white font-black rounded-full uppercase tracking-widest text-xs flex items-center justify-center gap-3 bg-black/20 backdrop-blur-md">
+          VER TRABAJO PDF <i data-lucide="file-text"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-menu" class="hidden h-screen w-full flex flex-col bg-[#080808] relative overflow-hidden">
+    <header class="relative flex justify-between items-center p-5 md:px-12 z-[200] shrink-0">
+      <button onclick="changeView('home')"
+        class="flex items-center gap-2.5 group text-white/50 hover:text-white cursor-pointer">
+        <div class="p-2 bg-white/5 rounded-full group-hover:bg-[#CE1126] transition-colors"><i data-lucide="arrow-left"
+            class="w-4 h-4 md:w-5 md:h-5"></i></div>
+        <span class="text-[10px] md:text-[11px] font-bold uppercase tracking-widest">Volver</span>
+      </button>
+      <a href="Trabajo_PDF.pdf" target="_blank"
+        class="px-4 py-2 bg-white/5 border border-white/10 text-[9px] font-black rounded-full flag-btn">
+        VER PDF
+      </a>
+    </header>
+
+    <main class="flex-1 wheel-scene" id="wheel"></main>
+
+    <button onclick="move(-1)"
+      class="absolute left-3 top-1/2 -translate-y-1/2 z-[210] p-3 bg-black/50 rounded-full border border-white/10">
+      <i data-lucide="chevron-left" class="w-8 h-8 text-[#FCD116]"></i>
+    </button>
+    <button onclick="move(1)"
+      class="absolute right-3 top-1/2 -translate-y-1/2 z-[210] p-3 bg-black/50 rounded-full border border-white/10">
+      <i data-lucide="chevron-right" class="w-8 h-8 text-[#CE1126]"></i>
+    </button>
+
+    <footer class="h-14 flex items-center justify-center shrink-0 z-[200] gap-2.5" id="dots"></footer>
+  </div>
+
+  <script>
+    const DISHES = [
+      { id: 1, category: "Entrada", name: "Buñuelo", region: "Nacional", description: "Esfera de masa frita a base de queso, crocante por fuera y esponjosa por dentro.", image: "./Images/bunuelo-paisa.webp", color: "bg-[#FCD116]", ingredients: ["Queso", "Maíz"] },
+      { id: 2, category: "Plato Principal", name: "Bandeja Paisa", region: "Antioquia", description: "Orgullo antioqueño: Fríjoles, arroz, chicharrón, carne molida, chorizo, morcilla, huevo, plátano, aguacate y arepa.", image: "./Images/bandejaPaisa.webp", color: "bg-[#CE1126]", ingredients: ["Fríjoles", "Chicharrón", "Morcilla"] },
+      { id: 3, category: "Dulce", name: "Pave", region: "Nacional", description: "Postre frío de capas que intercala galletas dulces con una crema suave de vainilla.", image: "./Images/Postre-Pave.webp", color: "bg-[#003893]", ingredients: ["Galletas", "Crema"] },
+      { id: 4, category: "Bebida", name: "Jugo de Lulo", region: "Valle", description: "Bebida cítrica y refrescante de color verde vibrante y sabor agridulce único.", image: "./Images/LULO.png", color: "bg-[#FCD116]", ingredients: ["Lulo", "Hielo"] },
+      { id: 5, category: "Bebida Alcohólica", name: "Cerveza Poker", region: "Nacional", description: "La cerveza de los amigos. Una lager clásica pilar de la cultura popular.", image: "./Images/poker.jpeg", color: "bg-[#CE1126]", ingredients: ["Cebada", "Malta"] },
+      { id: 6, category: "Bebida Alcohólica", name: "La Costeña", region: "Costa Caribe", description: "Cerveza refrescante, símbolo de la alegría y frescura del Caribe colombiano.", image: "./Images/costeña.jpeg", color: "bg-[#003893]", ingredients: ["Cebada", "Frescura"] }
+    ];
+
+    let currentIndex = 0;
+    const wheel = document.getElementById('wheel');
+
+    function render() {
+      wheel.innerHTML = DISHES.map((d, i) => `
+        <div class="dish-card" id="dish-${i}">
+          <div class="flex flex-col lg:flex-row items-center gap-6 lg:gap-16 px-5 w-full">
+            <div class="relative shrink-0">
+              <div class="absolute inset-0 rounded-full blur-[60px] opacity-40 scale-150 ${d.color}"></div>
+              <div class="dish-visual-wrapper">
+                <div class="dish-image-container w-[240px] h-[240px] sm:w-[350px] md:w-[450px] lg:w-[550px]">
+                  <img src="${d.image}" alt="${d.name}">
+                </div>
+              </div>
+              <div class="absolute -top-1 -right-1 bg-[#CE1126] text-white px-4 py-1.5 rounded-full font-black text-[9px] transform rotate-12">${d.region}</div>
+            </div>
+            <div class="text-center lg:text-left max-w-xl">
+              <span class="text-[#FCD116] text-[10px] uppercase mb-2 block">${d.category}</span>
+              <h2 class="text-4xl lg:text-7xl font-black italic uppercase leading-tight mb-4">${d.name}</h2>
+              <p class="text-neutral-400 text-sm md:text-lg italic border-l-4 border-[#003893] pl-4 mb-6">${d.description}</p>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      update();
+    }
+
+    function update() {
+      DISHES.forEach((_, i) => {
+        const card = document.getElementById(`dish-${i}`);
+        card.classList.remove('active', 'prev', 'next');
+        if (i === currentIndex) card.classList.add('active');
+        else if (i === (currentIndex - 1 + DISHES.length) % DISHES.length) card.classList.add('prev');
+        else if (i === (currentIndex + 1) % DISHES.length) card.classList.add('next');
+      });
+      document.getElementById('dots').innerHTML = DISHES.map((_, i) =>
+        `<div class="h-1 rounded-full transition-all duration-500 ${i === currentIndex ? 'w-10 bg-yellow-500' : 'w-2 bg-white/10'}"></div>`
+      ).join('');
+    }
+
+    function move(dir) {
+      currentIndex = (currentIndex + dir + DISHES.length) % DISHES.length;
+      update();
+    }
+
+    function changeView(view) {
+      document.getElementById('view-home').classList.toggle('hidden', view === 'menu');
+      document.getElementById('view-menu').classList.toggle('hidden', view === 'home');
+      if (view === 'menu') render();
+    }
+
+    lucide.createIcons();
+  </script>
+</body>
+
+</html>

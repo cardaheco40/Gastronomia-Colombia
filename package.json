@@ -1,0 +1,20 @@
+{
+  "name": "gastronomia-colombiana",
+  "version": "1.0.0",
+  "description": "Preview de Gastronomía Colombiana",
+  "main": "index.html",
+  "scripts": {
+    "start": "browser-sync start --server --files '*.html, *.css, *.js'",
+    "dev": "npm start"
+  },
+  "keywords": [
+    "gastronomia",
+    "colombia",
+    "preview"
+  ],
+  "author": "Alan",
+  "license": "MIT",
+  "devDependencies": {
+    "browser-sync": "^3.0.0"
+  }
+}
